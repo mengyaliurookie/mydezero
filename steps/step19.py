@@ -1,13 +1,14 @@
 import numpy as np
 import weakref
 import contextlib
-
 class Variable:
-    def __init__(self,data):
+    def __init__(self,data,name=None):
         if data is not None:
             if not isinstance(data,np.ndarray):
-                raise TypeError('{} is not supported'.format(type(data)))
+                raise TypeError(f"{type(data)} is not supported")
+
         self.data=data
+        self.name=name
         self.grad=None
         self.creator=None
         self.generation=0
@@ -16,6 +17,31 @@ class Variable:
         self.creator=func
         self.generation=func.generation+1
 
+    @property
+    def shape(self):
+        return self.data.shape
+
+    @property
+    def ndim(self):
+        return self.data.ndim
+
+    @property
+    def size(self):
+        return self.data.size
+
+    @property
+    def dtype(self):
+        return self.data.dtype
+
+    def __len__(self):
+        return len(self.data)
+
+    def __repr__(self):
+        if self.data is None:
+            return 'variable(None)'
+        p=str(self.data).replace('\n','\n'+" "*9)
+        return 'variable('+p+')'
+
     def backward(self,retain_grad=False):
         if self.grad is None:
             self.grad=np.ones_like(self.data)
@@ -23,30 +49,36 @@ class Variable:
         funcs=[]
         seen_set=set()
 
-        def add_func(f):
-            if f not in seen_set:
-                funcs.append(f)
-                seen_set.add(f)
-                funcs.sort(key=lambda x:x.generation)
+        def add_func(func):
+            if func not in seen_set:
+                funcs.append(func)
+                seen_set.add(func)
+                funcs.sort(key=lambda x: x.generation)
 
         add_func(self.creator)
 
         while funcs:
+            # 获取最靠后的函数，然后根据函数的输入输出变量
             f=funcs.pop()
+            # 根据输出变量来获取输出变量的梯度
             gys=[output().grad for output in f.outputs]
+            # 利用函数f的backward来计算输入变量的梯度
             gxs=f.backward(*gys)
             if not isinstance(gxs,tuple):
                 gxs=(gxs,)
+            # 设置输入变量的梯度
             for x,gx in zip(f.inputs,gxs):
                 if x.grad is None:
                     x.grad=gx
                 else:
                     x.grad+=gx
+                # 把输入变量的生成函数添加到优先队列中
                 if x.creator is not None:
                     add_func(x.creator)
             if not retain_grad:
-                for y in f.outputs:
-                    y().grad=None # y是weakref
+                for output in f.outputs:
+                    output().grad=None
+
 
 class Function:
     def __call__(self, *inputs):
@@ -69,8 +101,6 @@ class Function:
 
     def backward(self,gy):
         raise  NotImplementedError()
-
-
 class Config:
     enable_backprop=True
 
@@ -90,3 +120,22 @@ def using_config(name,value):
 
 def no_grad():
     return using_config('enable_backprop',False)
+
+
+class Mul(Function):
+    def forward(self,x0,x1):
+        y=x0*x1
+        return y
+
+    def backward(self,gy):
+        x0,x1=self.inputs[0].data,self.inputs[1].data
+        return gy*x1,gy*x0
+
+def mul(x0,x1):
+    return Mul()(x0,x1)
+
+
+
+
+
+

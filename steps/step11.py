@@ -43,7 +43,7 @@ class Function:
     def forward(self,x):
         raise NotImplementedError()
 
-    def backword(self,gy):
+    def backward(self,gy):
         raise  NotImplementedError()
 def as_array(x):
     if np.isscalar(x):
