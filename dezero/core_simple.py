@@ -229,7 +229,7 @@ def add(x0,x1):
 def as_variable(obj):
     if isinstance(obj,Variable):
         return obj
-    return Variable(obj)
+    return Variable(as_array(obj))
 
 
 
@@ -241,6 +241,6 @@ def setup_variable():
     Variable.__pow__ = pow
     Variable.__truediv__ = div
     Variable.__rtruediv__ = rdiv
-    Variable.__rsub__ = sub
+    Variable.__rsub__ = rsub
     Variable.__sub__ = sub
     Variable.__neg__ = neg
