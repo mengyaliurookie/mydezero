@@ -85,6 +85,9 @@ class Variable:
                 for output in f.outputs:
                     output().grad = None
 
+    def cleargrad(self):
+        self.grad = None
+
 
 
 class Function:
