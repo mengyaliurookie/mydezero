@@ -7,5 +7,3 @@ y=x0+x1
 print(y)
 
 y.backward()
-print(x0.grad)
-print(x1.grad)

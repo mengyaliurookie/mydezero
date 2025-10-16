@@ -122,3 +122,56 @@ class Sum(Function):
 
 def sum( x,axis=None,keepdims=False):
     return Sum(axis,keepdims)(x)
+
+class MatMul(Function):
+    def forward(self,x,w):
+        y=x.dot(w)
+        return y
+    def backward(self,gy):
+        x,W=self.inputs
+        gx=matmul(gy,W.T)
+        gW=matmul(x.T,gy)
+        return gx,gW
+
+def matmul(x,w):
+    return MatMul()(x,w)
+
+class MeanSquaredError(Function):
+    def forward(self,x0,x1):
+        diff=x0-x1
+        y=(diff**2).sum()/len(diff)
+        return y
+    def backward(self,gy):
+        x0,x1=self.inputs
+        diff=x0-x1
+        gx0=gy*diff*2/len(diff)
+        gx1=-gx0
+        return gx0,gx1
+
+class Exp(Function):
+    def forward(self,x):
+        y=np.exp(x)
+        return y
+    def backward(self,gy):
+        y=self.outputs[0]()
+        gx=gy*y
+        return gx
+
+def exp(x):
+    return Exp()(x)
+
+def mean_squared_error(x0,x1):
+    return MeanSquaredError()(x0,x1)
+
+def linear_simple(x,W,b= None):
+    t=matmul(x,W)
+    if b is None:
+        return t
+    y=t+b
+    t.data=None # 删除t的数据
+    return y
+
+def sigmoid_simple(x):
+    x=as_variable(x)
+    y=1/(1+exp(-x))
+    return y

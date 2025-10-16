@@ -135,6 +135,8 @@ class Function:
     def backward(self, gy):
         raise NotImplementedError()
 
+class Parameter(Variable):
+    pass
 
 class Config:
     enable_backprop = True
