@@ -80,7 +80,7 @@ class Variable:
                     if x.grad is None:
                         x.grad = gx
                     else:
-                        x.grad += gx
+                        x.grad = x.grad + gx
                     # 把输入变量的生成函数添加到优先队列中
                     if x.creator is not None:
                         add_func(x.creator)
@@ -287,6 +287,7 @@ def as_variable(obj):
 
 
 def setup_variable():
+    import dezero.functions
     Variable.__add__ = add
     Variable.__radd__ = add
     Variable.__mul__ = mul
@@ -297,3 +298,4 @@ def setup_variable():
     Variable.__rsub__ = rsub
     Variable.__sub__ = sub
     Variable.__neg__ = neg
+    Variable.__getitem__ = dezero.functions.get_item
