@@ -17,7 +17,7 @@ else:
     from dezero.core import as_array
     from dezero.core import as_variable
     from dezero.core import setup_variable
-    from dezero.core import Parameter
+    from dezero.core import Parameter,Config,test_mode
     from dezero.layers import  Layer
     from dezero.models import Model
     from dezero.dataloaders import DataLoader

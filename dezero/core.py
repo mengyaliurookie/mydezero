@@ -140,7 +140,10 @@ class Parameter(Variable):
 
 class Config:
     enable_backprop = True
+    train=True
 
+def test_mode():
+    return using_config('train',False)
 
 def as_array(x):
     if np.isscalar(x):

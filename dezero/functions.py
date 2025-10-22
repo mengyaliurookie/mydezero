@@ -1,6 +1,9 @@
 import numpy as np
+
+import dezero
 from dezero.core import Function, as_variable, Variable, as_array
-from dezero import utils
+from dezero import utils, cuda
+
 
 class Sin(Function):
     def forward(self,x):
@@ -280,3 +283,14 @@ class ReLU(Function):
 
 def relu(x):
     return ReLU()(x)
+
+def dropout(x,dropout_ratio=0.5):
+    x=as_variable(x)
+
+    if dezero.Config.train:
+        xp=cuda.get_array_module(x)
+        mask=xp.random.rand(*x.shape)>dropout_ratio
+        scale=xp.array(1.0-dropout_ratio).astype(x.dtype)
+        return x*mask/scale
+    else:
+        return x
