@@ -22,5 +22,6 @@ else:
     from dezero.models import Model
     from dezero.dataloaders import DataLoader
     from dezero import datasets,optimizers
+    from dezero import utils
 
 setup_variable()
