@@ -20,7 +20,7 @@ else:
     from dezero.core import Parameter,Config,test_mode
     from dezero.layers import  Layer
     from dezero.models import Model
-    from dezero.dataloaders import DataLoader
+    from dezero.dataloaders import DataLoader,SeqDataLoader
     from dezero import datasets,optimizers
     from dezero import utils
 
